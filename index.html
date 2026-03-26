@@ -76,69 +76,76 @@ select, input {
   <button onclick="login()">Login</button>
 </div>
 
-<!-- CONTEXT -->
-<div class="card">
-  <div class="section-title">Set Call Context</div>
+<!-- APP CONTENT (HIDDEN UNTIL LOGIN) -->
+<div id="appContent" style="display:none;">
 
-  <select id="program">
-    <option value="DevOps">DevOps</option>
-  </select>
-
-  <select id="persona">
-    <option value="Support Engineer">Support Engineer</option>
-  </select>
-
-  <button onclick="startCall()">🚀 Start Call Mode</button>
-</div>
-
-<!-- CALL FLOW -->
-<div id="callFlow" class="hidden">
-
+  <!-- CONTEXT -->
   <div class="card">
-    <div class="section-title">Opening</div>
-    <p id="opening"></p>
+    <div class="section-title">Set Call Context</div>
+
+    <select id="program">
+      <option value="DevOps">DevOps</option>
+    </select>
+
+    <select id="persona">
+      <option value="Support Engineer">Support Engineer</option>
+    </select>
+
+    <button onclick="startCall()">🚀 Start Call Mode</button>
   </div>
 
-  <div class="card">
-    <div class="section-title">Probing</div>
-    <ul id="probing"></ul>
+  <!-- CALL FLOW -->
+  <div id="callFlow" class="hidden">
+
+    <div class="card">
+      <div class="section-title">Opening</div>
+      <p id="opening"></p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Probing</div>
+      <ul id="probing"></ul>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Pitch</div>
+      <p id="pitch"></p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Proof</div>
+      <div id="proof"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Objections</div>
+      <button onclick="handleObjection('price')">Price</button>
+      <button onclick="handleObjection('time')">Time</button>
+      <button onclick="handleObjection('trust')">Trust</button>
+      <p id="objection"></p>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Closing</div>
+      <p id="closing"></p>
+    </div>
+
   </div>
 
-  <div class="card">
-    <div class="section-title">Pitch</div>
-    <p id="pitch"></p>
+  <!-- ADMIN ONLY DASHBOARD -->
+  <div id="adminPanel" style="display:none;">
+    <div class="card">
+      <div class="section-title">📊 Analytics Dashboard</div>
+      <button onclick="loadDashboard()">Load Insights</button>
+
+      <canvas id="personaChart"></canvas>
+      <canvas id="objectionChart"></canvas>
+      <canvas id="programChart"></canvas>
+
+      <div id="summary"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="section-title">Proof</div>
-    <div id="proof"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Objections</div>
-    <button onclick="handleObjection('price')">Price</button>
-    <button onclick="handleObjection('time')">Time</button>
-    <button onclick="handleObjection('trust')">Trust</button>
-    <p id="objection"></p>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Closing</div>
-    <p id="closing"></p>
-  </div>
-
-</div>
-
-<!-- DASHBOARD -->
-<div class="card">
-  <div class="section-title">📊 Analytics Dashboard</div>
-  <button onclick="loadDashboard()">Load Insights</button>
-
-  <canvas id="personaChart"></canvas>
-  <canvas id="objectionChart"></canvas>
-  <canvas id="programChart"></canvas>
-
-  <div id="summary"></div>
 </div>
 
 </div>
@@ -153,7 +160,7 @@ select, input {
 
 <script>
 
-// FIREBASE CONFIG
+// 🔥 FIREBASE INIT
 const firebaseConfig = {
   apiKey: "AIzaSyCloEk4A8Yq5TwGZQNsrB7Y0Hc-DCUUFPs",
   authDomain: "vired-pulse.firebaseapp.com",
@@ -168,7 +175,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// LOGIN
+// 🔐 LOGIN
 function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -176,12 +183,25 @@ function login() {
   auth.signInWithEmailAndPassword(email, password)
     .then(user => {
       window.currentUser = user.user.email;
+
       document.getElementById("loginBox").style.display = "none";
+      document.getElementById("appContent").style.display = "block";
+
+      checkAdminAccess();
     })
     .catch(err => alert(err.message));
 }
 
-// DATA
+// 👑 ADMIN CHECK
+function checkAdminAccess() {
+  const adminEmail = "aavneet.johar@herovired.com";
+
+  if (window.currentUser === adminEmail) {
+    document.getElementById("adminPanel").style.display = "block";
+  }
+}
+
+// 📦 DATA
 const flow = {
   opening: "What made you explore moving beyond support roles right now?",
   probing: ["Current role?", "Growth goals?", "Biggest blocker?", "Why now?"],
@@ -195,7 +215,7 @@ const flow = {
   closing: "Let’s secure your seat—you can evaluate in session."
 };
 
-// START CALL
+// 🚀 START CALL
 function startCall() {
 
   document.getElementById("callFlow").classList.remove("hidden");
@@ -226,26 +246,26 @@ function startCall() {
 
   db.collection("events").add({
     type: "start_call",
-    user: window.currentUser || "anonymous",
+    user: window.currentUser,
     program: "DevOps",
     persona: "Support Engineer",
     timestamp: new Date()
   });
 }
 
-// OBJECTION
+// ⚔️ OBJECTION
 function handleObjection(type) {
   document.getElementById("objection").innerText = window.currentObjections[type];
 
   db.collection("events").add({
     type: "objection_click",
-    user: window.currentUser || "anonymous",
+    user: window.currentUser,
     objection: type,
     timestamp: new Date()
   });
 }
 
-// DASHBOARD
+// 📊 DASHBOARD
 async function loadDashboard() {
 
   const snapshot = await db.collection("events").get();
@@ -291,7 +311,7 @@ async function loadDashboard() {
   });
 
   document.getElementById("summary").innerHTML =
-    `Total Calls: ${totalCalls}`;
+    `📞 Total Calls: ${totalCalls}`;
 }
 
 </script>
