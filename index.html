@@ -1,146 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vired Pulse</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-body { margin:0; font-family:'Roboto', sans-serif; background:#f4f4f4; }
-
-.hero {
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('header.png') center/cover no-repeat;
-  height:220px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  text-align:center;
-}
-
-.hero h1 { font-family:'Roboto Slab'; margin:0; font-size:28px; }
-.hero p { margin-top:5px; font-size:14px; }
-
-.container { padding:15px; max-width:900px; margin:auto; }
-
-.card {
-  background:white;
-  padding:16px;
-  margin-bottom:14px;
-  border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
-}
-
-button {
-  background:#ED1C24;
-  color:white;
-  border:none;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  margin:5px 5px 5px 0;
-}
-
-select, input {
-  padding:10px;
-  border-radius:6px;
-  border:1px solid #ddd;
-  margin-bottom:8px;
-  width:100%;
-}
-
-.section-title { font-weight:600; margin-bottom:10px; }
-.resource { background:#fafafa; padding:10px; border-radius:6px; margin-top:8px; }
-.hidden { display:none; }
-</style>
-</head>
-
-<body>
-
-<div class="hero">
-  <div>
-    <h1>Vired Pulse</h1>
-    <p>Powered by Vired IQ • Your AI-like Call Assistant</p>
-  </div>
-</div>
-
-<div class="container">
-
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-  <div class="section-title">Login</div>
-  <input type="email" id="email" placeholder="Enter email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-</div>
-
-<!-- CONTEXT -->
-<div class="card">
-  <div class="section-title">Set Call Context</div>
-
-  <select id="program">
-    <option value="DevOps">DevOps</option>
-    <option value="SIL">SIL</option>
-    <option value="LxAI">LxAI</option>
-  </select>
-
-  <select id="persona">
-    <option value="Support Engineer">Support Engineer</option>
-    <option value="Working Professional">Working Professional</option>
-  </select>
-
-  <button onclick="startCall()">🚀 Start Call Mode</button>
-</div>
-
-<div id="callFlow" class="hidden">
-
-  <div class="card">
-    <div class="section-title">Opening</div>
-    <p id="opening"></p>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Probing</div>
-    <ul id="probing"></ul>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Pitch</div>
-    <p id="pitch"></p>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Proof</div>
-    <div id="proof"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Objections</div>
-    <button onclick="handleObjection('price')">Price</button>
-    <button onclick="handleObjection('time')">Time</button>
-    <button onclick="handleObjection('trust')">Trust</button>
-    <p id="objection"></p>
-  </div>
-
-  <div class="card">
-    <div class="section-title">Closing</div>
-    <p id="closing"></p>
-  </div>
-
-</div>
-
-</div>
-
-<!-- FIREBASE (COMPAT VERSION) -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
+<!-- CHARTS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
-// 🔥 YOUR CONFIG
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCloEk4A8Yq5TwGZQNsrB7Y0Hc-DCUUFPs",
   authDomain: "vired-pulse.firebaseapp.com",
@@ -155,7 +23,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// LOGIN
+// 🔐 LOGIN
 function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -168,13 +36,13 @@ function login() {
     .catch(err => alert(err.message));
 }
 
-// DATA
+// 📦 DATA (EXPAND THIS LATER)
 const data = {
   DevOps: {
     "Support Engineer": {
       opening: "What made you explore moving beyond support roles right now?",
       probing: ["Current role?", "Growth goals?", "Biggest blocker?", "Why now?"],
-      pitch: "You're already close to DevOps, but stuck in reactive work. This helps you move into automation and ownership roles.",
+      pitch: "You're close to DevOps but stuck in reactive work. This helps you move into automation & ownership roles.",
       proof: ["₹4L → ₹9L growth", "Hands-on CI/CD"],
       objections: {
         price: "Recovered via salary jump within a year.",
@@ -186,7 +54,7 @@ const data = {
   }
 };
 
-// START CALL
+// 🚀 START CALL
 function startCall() {
   const program = document.getElementById("program").value;
   const persona = document.getElementById("persona").value;
@@ -197,20 +65,20 @@ function startCall() {
 
   document.getElementById("opening").innerText = flow.opening;
 
-  let probingList = document.getElementById("probing");
+  const probingList = document.getElementById("probing");
   probingList.innerHTML = "";
   flow.probing.forEach(q => {
-    let li = document.createElement("li");
+    const li = document.createElement("li");
     li.innerText = q;
     probingList.appendChild(li);
   });
 
   document.getElementById("pitch").innerText = flow.pitch;
 
-  let proofDiv = document.getElementById("proof");
+  const proofDiv = document.getElementById("proof");
   proofDiv.innerHTML = "";
   flow.proof.forEach(p => {
-    let div = document.createElement("div");
+    const div = document.createElement("div");
     div.className = "resource";
     div.innerText = p;
     proofDiv.appendChild(div);
@@ -219,7 +87,7 @@ function startCall() {
   window.currentObjections = flow.objections;
   document.getElementById("closing").innerText = flow.closing;
 
-  // 🔥 TRACK START CALL
+  // 🔥 TRACK CALL
   db.collection("events").add({
     type: "start_call",
     user: window.currentUser || "anonymous",
@@ -229,11 +97,10 @@ function startCall() {
   });
 }
 
-// OBJECTION
+// ⚔️ HANDLE OBJECTION
 function handleObjection(type) {
   document.getElementById("objection").innerText = window.currentObjections[type];
 
-  // 🔥 TRACK OBJECTION
   db.collection("events").add({
     type: "objection_click",
     user: window.currentUser || "anonymous",
@@ -242,7 +109,75 @@ function handleObjection(type) {
   });
 }
 
-</script>
+// 📊 DASHBOARD
+async function loadDashboard() {
 
-</body>
-</html>
+  const snapshot = await db.collection("events").get();
+
+  let personaCount = {};
+  let programCount = {};
+  let objectionCount = {};
+  let userCount = {};
+  let totalCalls = 0;
+
+  snapshot.forEach(doc => {
+    const d = doc.data();
+
+    if (d.type === "start_call") {
+      totalCalls++;
+      personaCount[d.persona] = (personaCount[d.persona] || 0) + 1;
+      programCount[d.program] = (programCount[d.program] || 0) + 1;
+      userCount[d.user] = (userCount[d.user] || 0) + 1;
+    }
+
+    if (d.type === "objection_click") {
+      objectionCount[d.objection] = (objectionCount[d.objection] || 0) + 1;
+    }
+  });
+
+  // DESTROY OLD CHARTS
+  if (window.personaChartObj) window.personaChartObj.destroy();
+  if (window.objectionChartObj) window.objectionChartObj.destroy();
+  if (window.programChartObj) window.programChartObj.destroy();
+
+  // PERSONA CHART
+  window.personaChartObj = new Chart(document.getElementById("personaChart"), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(personaCount),
+      datasets: [{ label: 'Persona Usage', data: Object.values(personaCount) }]
+    }
+  });
+
+  // OBJECTION CHART
+  window.objectionChartObj = new Chart(document.getElementById("objectionChart"), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(objectionCount),
+      datasets: [{ data: Object.values(objectionCount) }]
+    }
+  });
+
+  // PROGRAM CHART
+  window.programChartObj = new Chart(document.getElementById("programChart"), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(programCount),
+      datasets: [{ label: 'Program Usage', data: Object.values(programCount) }]
+    }
+  });
+
+  // SUMMARY
+  function top(obj) {
+    return Object.entries(obj).sort((a,b)=>b[1]-a[1])[0];
+  }
+
+  document.getElementById("summary").innerHTML = `
+    <div class="resource">📞 Total Calls: ${totalCalls}</div>
+    <div class="resource">👤 Top Persona: ${top(personaCount)?.[0] || '-'}</div>
+    <div class="resource">🔥 Top Objection: ${top(objectionCount)?.[0] || '-'}</div>
+    <div class="resource">🏆 Top LC: ${top(userCount)?.[0] || '-'}</div>
+  `;
+}
+
+</script>
