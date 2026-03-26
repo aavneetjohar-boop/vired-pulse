@@ -122,6 +122,13 @@ select {
 
 <div class="container">
 
+<div class="card" id="loginBox">
+  <div class="section-title">Login</div>
+  <input type="email" id="email" placeholder="Enter email"><br><br>
+  <input type="password" id="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
+
 <!-- CONTEXT -->
 <div class="card">
   <div class="section-title">Set Call Context</div>
@@ -187,6 +194,31 @@ select {
 
 <script>
 
+function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(user => {
+      window.currentUser = user.user.email;
+      document.getElementById("loginBox").style.display = "none";
+    })
+    .catch(err => alert(err.message));
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCloEk4A8Yq5TwGZQNsrB7Y0Hc-DCUUFPs",
+  authDomain: "vired-pulse.firebaseapp.com",
+  projectId: "vired-pulse",
+  storageBucket: "vired-pulse.firebasestorage.app",
+  messagingSenderId: "139422394890",
+  appId: "1:139422394890:web:5a41ec6bd2f3da51e88df3"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
 const data = {
   DevOps: {
     "Support Engineer": {
@@ -210,6 +242,15 @@ const data = {
 };
 
 function startCall() {
+
+db.collection("events").add({
+  type: "start_call",
+  user: window.currentUser || "anonymous",
+  program: program,
+  persona: persona,
+  timestamp: new Date()
+});
+
   const program = document.getElementById("program").value;
   const persona = document.getElementById("persona").value;
 
@@ -243,10 +284,19 @@ function startCall() {
 }
 
 function handleObjection(type) {
+
+db.collection("events").add({
+  type: "objection_click",
+  user: window.currentUser || "anonymous",
+  objection: type,
+  timestamp: new Date()
+});
   document.getElementById("objection").innerText = window.currentObjections[type];
 }
 
 </script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 </body>
 </html>
