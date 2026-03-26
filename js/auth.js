@@ -1,7 +1,10 @@
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyCloEk4A8Yq5TwGZQNsrB7Y0Hc-DCUUFPs",
   authDomain: "vired-pulse.firebaseapp.com",
-  projectId: "vired-pulse"
+  projectId: "vired-pulse",
+  storageBucket: "vired-pulse.firebasestorage.app",
+  messagingSenderId: "139422394890",
+  appId: "1:139422394890:web:5a41ec6bd2f3da51e88df3"
 };
 
 firebase.initializeApp(firebaseConfig);
