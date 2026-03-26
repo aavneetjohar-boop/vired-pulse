@@ -12,134 +12,96 @@ body { margin:0; font-family:'Roboto', sans-serif; background:#f4f4f4; }
 
 .hero {
   background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('header.png') center/cover no-repeat;
-  height:220px;
+  height:180px;
   display:flex;
   align-items:center;
   justify-content:center;
   color:white;
-  text-align:center;
 }
 
-.hero h1 { font-family:'Roboto Slab'; margin:0; font-size:28px; }
-.hero p { margin-top:5px; font-size:14px; }
-
 .container { padding:15px; max-width:900px; margin:auto; }
+
+.tabs { display:flex; gap:10px; margin-bottom:15px; }
+.tab { padding:10px 15px; background:#ddd; border-radius:6px; cursor:pointer; }
+.tab.active { background:#ED1C24; color:white; }
 
 .card {
   background:white;
   padding:16px;
   margin-bottom:14px;
   border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
 
-button {
-  background:#ED1C24;
-  color:white;
-  border:none;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  margin-top:10px;
-}
-
-select, input {
-  padding:10px;
-  border-radius:6px;
-  border:1px solid #ddd;
-  margin-bottom:8px;
-  width:100%;
-}
-
-.section-title { font-weight:600; margin-bottom:10px; }
-.resource { background:#fafafa; padding:10px; border-radius:6px; margin-top:8px; }
 .hidden { display:none; }
+button { background:#ED1C24; color:white; padding:10px; border:none; border-radius:6px; cursor:pointer; }
+input, select { width:100%; padding:10px; margin-bottom:8px; }
 </style>
+
 </head>
 
 <body>
 
 <div class="hero">
-  <div>
-    <h1>Vired Pulse</h1>
-    <p>Powered by Vired IQ • Your AI-like Call Assistant</p>
-  </div>
+  <h1>Vired Pulse</h1>
 </div>
 
 <div class="container">
 
 <!-- LOGIN -->
 <div class="card" id="loginBox">
-  <div class="section-title">Login / Sign Up</div>
   <input type="email" id="email" placeholder="Enter Hero Vired email">
-  <input type="password" id="password" placeholder="Create password">
+  <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login / Sign Up</button>
 </div>
 
 <!-- APP -->
 <div id="appContent" style="display:none;">
 
-  <div class="card">
-    <div class="section-title">Set Call Context</div>
-
-    <select id="program">
-      <option value="DevOps">DevOps</option>
-    </select>
-
-    <select id="persona">
-      <option value="Support Engineer">Support Engineer</option>
-    </select>
-
-    <button onclick="startCall()">🚀 Start Call Mode</button>
+  <!-- NAV -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('learn')">Learn</div>
+    <div class="tab" onclick="showTab('call')">Call Mode</div>
+    <div class="tab" onclick="showTab('ops')">Ops</div>
+    <div class="tab" id="analyticsTab" style="display:none;" onclick="showTab('analytics')">Analytics</div>
   </div>
 
-  <div id="callFlow" class="hidden">
-
-    <div class="card">
-      <div class="section-title">Opening</div>
-      <p id="opening"></p>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Probing</div>
-      <ul id="probing"></ul>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Pitch</div>
-      <p id="pitch"></p>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Proof</div>
-      <div id="proof"></div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Objections</div>
-      <button onclick="handleObjection('price')">Price</button>
-      <button onclick="handleObjection('time')">Time</button>
-      <button onclick="handleObjection('trust')">Trust</button>
-      <p id="objection"></p>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Closing</div>
-      <p id="closing"></p>
-    </div>
-
+  <!-- LEARN -->
+  <div id="learnTab">
+    <div class="card">Learning Content (to be populated)</div>
   </div>
 
-  <!-- ADMIN ONLY -->
-  <div id="adminPanel" style="display:none;">
+  <!-- CALL -->
+  <div id="callTab" class="hidden">
     <div class="card">
-      <div class="section-title">📊 Analytics Dashboard</div>
+      <button onclick="startCall()">Start Call</button>
+    </div>
+
+    <div id="callFlow" class="hidden">
+      <div class="card"><p id="opening"></p></div>
+      <div class="card"><ul id="probing"></ul></div>
+      <div class="card"><p id="pitch"></p></div>
+      <div class="card">
+        <button onclick="handleObjection('price')">Price</button>
+        <button onclick="handleObjection('time')">Time</button>
+        <button onclick="handleObjection('trust')">Trust</button>
+        <p id="objection"></p>
+      </div>
+      <div class="card"><p id="closing"></p></div>
+    </div>
+  </div>
+
+  <!-- OPS -->
+  <div id="opsTab" class="hidden">
+    <div class="card">Operational Links</div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div id="analyticsTabContent" class="hidden">
+    <div class="card">
       <button onclick="loadDashboard()">Load Insights</button>
-
       <canvas id="personaChart"></canvas>
       <canvas id="objectionChart"></canvas>
       <canvas id="programChart"></canvas>
-
       <div id="summary"></div>
     </div>
   </div>
@@ -148,187 +110,18 @@ select, input {
 
 </div>
 
-<!-- FIREBASE -->
+<!-- LIBRARIES -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-<!-- CHART -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-
-// FIREBASE
-const firebaseConfig = {
-  apiKey: "AIzaSyCloEk4A8Yq5TwGZQNsrB7Y0Hc-DCUUFPs",
-  authDomain: "vired-pulse.firebaseapp.com",
-  projectId: "vired-pulse",
-  storageBucket: "vired-pulse.firebasestorage.app",
-  messagingSenderId: "139422394890",
-  appId: "1:139422394890:web:5a41ec6bd2f3da51e88df3"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// LOGIN + SIGNUP
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  // DOMAIN RESTRICTION
-  if (!email.endsWith("@herovired.com")) {
-    alert("Please use your official Hero Vired email ID");
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(user => afterLogin(user))
-    .catch(() => {
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(user => afterLogin(user))
-        .catch(err => alert(err.message));
-    });
-}
-
-function afterLogin(user) {
-  window.currentUser = user.user.email;
-
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("appContent").style.display = "block";
-
-  checkAdminAccess();
-
-  // STORE USER
-  db.collection("users").doc(window.currentUser).set({
-    email: window.currentUser,
-    lastLogin: new Date()
-  });
-}
-
-// ADMIN ACCESS
-function checkAdminAccess() {
-  if (window.currentUser === "aavneet.johar@herovired.com") {
-    document.getElementById("adminPanel").style.display = "block";
-  }
-}
-
-// DATA
-const flow = {
-  opening: "What made you explore moving beyond support roles right now?",
-  probing: ["Current role?", "Growth goals?", "Biggest blocker?", "Why now?"],
-  pitch: "You're close to DevOps but stuck in reactive work. This helps you move into automation & ownership roles.",
-  proof: ["₹4L → ₹9L growth", "Hands-on CI/CD"],
-  objections: {
-    price: "Recovered via salary jump within a year.",
-    time: "10–12 hrs/week.",
-    trust: "Attend live class + alumni connect."
-  },
-  closing: "Let’s secure your seat—you can evaluate in session."
-};
-
-// START CALL
-function startCall() {
-
-  document.getElementById("callFlow").classList.remove("hidden");
-
-  document.getElementById("opening").innerText = flow.opening;
-
-  let probingList = document.getElementById("probing");
-  probingList.innerHTML = "";
-  flow.probing.forEach(q => {
-    let li = document.createElement("li");
-    li.innerText = q;
-    probingList.appendChild(li);
-  });
-
-  document.getElementById("pitch").innerText = flow.pitch;
-
-  let proofDiv = document.getElementById("proof");
-  proofDiv.innerHTML = "";
-  flow.proof.forEach(p => {
-    let div = document.createElement("div");
-    div.className = "resource";
-    div.innerText = p;
-    proofDiv.appendChild(div);
-  });
-
-  window.currentObjections = flow.objections;
-  document.getElementById("closing").innerText = flow.closing;
-
-  db.collection("events").add({
-    type: "start_call",
-    user: window.currentUser,
-    program: "DevOps",
-    persona: "Support Engineer",
-    timestamp: new Date()
-  });
-}
-
-// OBJECTION
-function handleObjection(type) {
-  document.getElementById("objection").innerText = window.currentObjections[type];
-
-  db.collection("events").add({
-    type: "objection_click",
-    user: window.currentUser,
-    objection: type,
-    timestamp: new Date()
-  });
-}
-
-// DASHBOARD
-async function loadDashboard() {
-
-  const snapshot = await db.collection("events").get();
-
-  let personaCount = {};
-  let programCount = {};
-  let objectionCount = {};
-  let userCount = {};
-  let totalCalls = 0;
-
-  snapshot.forEach(doc => {
-    const d = doc.data();
-
-    if (d.type === "start_call") {
-      totalCalls++;
-      personaCount[d.persona] = (personaCount[d.persona] || 0) + 1;
-      programCount[d.program] = (programCount[d.program] || 0) + 1;
-      userCount[d.user] = (userCount[d.user] || 0) + 1;
-    }
-
-    if (d.type === "objection_click") {
-      objectionCount[d.objection] = (objectionCount[d.objection] || 0) + 1;
-    }
-  });
-
-  if (window.personaChartObj) window.personaChartObj.destroy();
-  if (window.objectionChartObj) window.objectionChartObj.destroy();
-  if (window.programChartObj) window.programChartObj.destroy();
-
-  window.personaChartObj = new Chart(document.getElementById("personaChart"), {
-    type: 'bar',
-    data: { labels: Object.keys(personaCount), datasets: [{ data: Object.values(personaCount) }] }
-  });
-
-  window.objectionChartObj = new Chart(document.getElementById("objectionChart"), {
-    type: 'pie',
-    data: { labels: Object.keys(objectionCount), datasets: [{ data: Object.values(objectionCount) }] }
-  });
-
-  window.programChartObj = new Chart(document.getElementById("programChart"), {
-    type: 'bar',
-    data: { labels: Object.keys(programCount), datasets: [{ data: Object.values(programCount) }] }
-  });
-
-  document.getElementById("summary").innerHTML =
-    `📞 Total Calls: ${totalCalls}`;
-}
-
-</script>
+<!-- MODULES -->
+<script src="data/flow.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/call.js"></script>
+<script src="js/dashboard.js"></script>
 
 </body>
 </html>
