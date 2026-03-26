@@ -8,56 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin:0;
-  font-family:'Roboto', sans-serif;
-  background:#f4f4f4;
-}
+body { margin:0; font-family:'Roboto', sans-serif; background:#f4f4f4; }
 
-/* HERO HEADER */
 .hero {
-  background: url('header.png') center/cover no-repeat;
-  height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
-  position: relative;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('header.png') center/cover no-repeat;
+  height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  text-align:center;
 }
 
-.hero::after {
-  content:'';
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,0.5);
-}
+.hero h1 { font-family:'Roboto Slab'; margin:0; font-size:28px; }
+.hero p { margin-top:5px; font-size:14px; }
 
-.hero-content {
-  position: relative;
-  z-index: 1;
-}
+.container { padding:15px; max-width:900px; margin:auto; }
 
-.hero h1 {
-  font-family: 'Roboto Slab';
-  margin:0;
-  font-size: 28px;
-}
-
-.hero p {
-  margin-top:5px;
-  font-size:14px;
-  opacity:0.9;
-}
-
-/* MAIN */
-.container {
-  padding:15px;
-  max-width: 900px;
-  margin:auto;
-}
-
-/* CARD */
 .card {
   background:white;
   padding:16px;
@@ -66,7 +33,6 @@ body {
   box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
 
-/* CONTROLS */
 button {
   background:#ED1C24;
   color:white;
@@ -75,46 +41,26 @@ button {
   border-radius:8px;
   cursor:pointer;
   margin:5px 5px 5px 0;
-  font-weight:500;
 }
 
-button:hover {
-  opacity:0.9;
-}
-
-select {
+select, input {
   padding:10px;
   border-radius:6px;
   border:1px solid #ddd;
-  margin-right:10px;
+  margin-bottom:8px;
+  width:100%;
 }
 
-/* TEXT */
-.section-title {
-  font-weight:600;
-  margin-bottom:10px;
-  font-size:16px;
-}
-
-.resource {
-  background:#fafafa;
-  padding:10px;
-  border-radius:6px;
-  margin-top:8px;
-}
-
-.hidden {
-  display:none;
-}
-
+.section-title { font-weight:600; margin-bottom:10px; }
+.resource { background:#fafafa; padding:10px; border-radius:6px; margin-top:8px; }
+.hidden { display:none; }
 </style>
 </head>
 
 <body>
 
-<!-- HERO -->
 <div class="hero">
-  <div class="hero-content">
+  <div>
     <h1>Vired Pulse</h1>
     <p>Powered by Vired IQ • Your AI-like Call Assistant</p>
   </div>
@@ -122,10 +68,11 @@ select {
 
 <div class="container">
 
+<!-- LOGIN -->
 <div class="card" id="loginBox">
   <div class="section-title">Login</div>
-  <input type="email" id="email" placeholder="Enter email"><br><br>
-  <input type="password" id="password" placeholder="Password"><br><br>
+  <input type="email" id="email" placeholder="Enter email">
+  <input type="password" id="password" placeholder="Password">
   <button onclick="login()">Login</button>
 </div>
 
@@ -142,39 +89,35 @@ select {
   <select id="persona">
     <option value="Support Engineer">Support Engineer</option>
     <option value="Working Professional">Working Professional</option>
-    <option value="Career Switcher">Career Switcher</option>
-    <option value="Manager">Manager</option>
   </select>
 
-  <br><br>
   <button onclick="startCall()">🚀 Start Call Mode</button>
 </div>
 
-<!-- CALL FLOW -->
 <div id="callFlow" class="hidden">
 
   <div class="card">
-    <div class="section-title">🎯 Opening</div>
+    <div class="section-title">Opening</div>
     <p id="opening"></p>
   </div>
 
   <div class="card">
-    <div class="section-title">🔍 Probing</div>
+    <div class="section-title">Probing</div>
     <ul id="probing"></ul>
   </div>
 
   <div class="card">
-    <div class="section-title">💡 Pitch</div>
+    <div class="section-title">Pitch</div>
     <p id="pitch"></p>
   </div>
 
   <div class="card">
-    <div class="section-title">📊 Proof</div>
+    <div class="section-title">Proof</div>
     <div id="proof"></div>
   </div>
 
   <div class="card">
-    <div class="section-title">⚔️ Objections</div>
+    <div class="section-title">Objections</div>
     <button onclick="handleObjection('price')">Price</button>
     <button onclick="handleObjection('time')">Time</button>
     <button onclick="handleObjection('trust')">Trust</button>
@@ -182,30 +125,22 @@ select {
   </div>
 
   <div class="card">
-    <div class="section-title">💰 Closing</div>
+    <div class="section-title">Closing</div>
     <p id="closing"></p>
-    <button>Apply Now</button>
-    <button>Batch Calendar</button>
   </div>
 
 </div>
 
 </div>
 
+<!-- FIREBASE (COMPAT VERSION) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <script>
 
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(user => {
-      window.currentUser = user.user.email;
-      document.getElementById("loginBox").style.display = "none";
-    })
-    .catch(err => alert(err.message));
-}
-
+// 🔥 YOUR CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCloEk4A8Yq5TwGZQNsrB7Y0Hc-DCUUFPs",
   authDomain: "vired-pulse.firebaseapp.com",
@@ -219,61 +154,63 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// LOGIN
+function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(user => {
+      window.currentUser = user.user.email;
+      document.getElementById("loginBox").style.display = "none";
+    })
+    .catch(err => alert(err.message));
+}
+
+// DATA
 const data = {
   DevOps: {
     "Support Engineer": {
       opening: "What made you explore moving beyond support roles right now?",
-      probing: [
-        "What kind of tickets do you handle?",
-        "Exposure to automation?",
-        "Growth expectations?",
-        "Why now?"
-      ],
-      pitch: "You're close to DevOps already, but stuck in reactive work. This moves you into automation, CI/CD, and ownership roles.",
-      proof: ["₹4L → ₹9L transition", "Hands-on CI/CD pipelines"],
+      probing: ["Current role?", "Growth goals?", "Biggest blocker?", "Why now?"],
+      pitch: "You're already close to DevOps, but stuck in reactive work. This helps you move into automation and ownership roles.",
+      proof: ["₹4L → ₹9L growth", "Hands-on CI/CD"],
       objections: {
         price: "Recovered via salary jump within a year.",
         time: "10–12 hrs/week.",
-        trust: "Attend a live class + alumni connect."
+        trust: "Attend live class + alumni connect."
       },
-      closing: "Let’s secure your seat—you can evaluate in the session."
+      closing: "Let’s secure your seat—you can evaluate in session."
     }
   }
 };
 
+// START CALL
 function startCall() {
-
-db.collection("events").add({
-  type: "start_call",
-  user: window.currentUser || "anonymous",
-  program: program,
-  persona: persona,
-  timestamp: new Date()
-});
-
   const program = document.getElementById("program").value;
   const persona = document.getElementById("persona").value;
 
-  const flow = data[program][persona] || data[program]["Support Engineer"];
+  const flow = data[program][persona];
 
   document.getElementById("callFlow").classList.remove("hidden");
 
   document.getElementById("opening").innerText = flow.opening;
 
-  const probingList = document.getElementById("probing");
+  let probingList = document.getElementById("probing");
   probingList.innerHTML = "";
   flow.probing.forEach(q => {
-    const li = document.createElement("li");
+    let li = document.createElement("li");
     li.innerText = q;
     probingList.appendChild(li);
   });
 
   document.getElementById("pitch").innerText = flow.pitch;
 
-  const proofDiv = document.getElementById("proof");
+  let proofDiv = document.getElementById("proof");
   proofDiv.innerHTML = "";
   flow.proof.forEach(p => {
-    const div = document.createElement("div");
+    let div = document.createElement("div");
     div.className = "resource";
     div.innerText = p;
     proofDiv.appendChild(div);
@@ -281,22 +218,31 @@ db.collection("events").add({
 
   window.currentObjections = flow.objections;
   document.getElementById("closing").innerText = flow.closing;
+
+  // 🔥 TRACK START CALL
+  db.collection("events").add({
+    type: "start_call",
+    user: window.currentUser || "anonymous",
+    program,
+    persona,
+    timestamp: new Date()
+  });
 }
 
+// OBJECTION
 function handleObjection(type) {
-
-db.collection("events").add({
-  type: "objection_click",
-  user: window.currentUser || "anonymous",
-  objection: type,
-  timestamp: new Date()
-});
   document.getElementById("objection").innerText = window.currentObjections[type];
+
+  // 🔥 TRACK OBJECTION
+  db.collection("events").add({
+    type: "objection_click",
+    user: window.currentUser || "anonymous",
+    objection: type,
+    timestamp: new Date()
+  });
 }
 
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
 </body>
 </html>
