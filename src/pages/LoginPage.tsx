@@ -68,7 +68,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
       // 🟣 2. SIGNUP FLOW
       if (isSignup) {
-        if (!VALID_INVITE_CODES.includes(inviteCode)) {
+        if (!VALID_INVITE_CODES.includes(inviteCode.toUpperCase())) {
           setError("Invalid invite code");
           return;
         }
@@ -96,21 +96,33 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       console.error("Auth Error:", err);
 
       switch (err.code) {
+        case "auth/invalid-credential":
+          setError("Account not found. Please sign up.");
+          setIsSignup(true);
+          break;
+
         case "auth/user-not-found":
           setError("User not found. Please sign up.");
+          setIsSignup(true);
           break;
+
         case "auth/wrong-password":
           setError("Incorrect password");
           break;
+
         case "auth/email-already-in-use":
-          setError("User already exists. Please login.");
+          setError("Account already exists. Please login.");
+          setIsSignup(false);
           break;
+
         case "auth/weak-password":
           setError("Password must be at least 6 characters");
           break;
+
         case "auth/invalid-email":
           setError("Invalid email format");
           break;
+
         default:
           setError("Something went wrong. Try again.");
       }
@@ -144,7 +156,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           {/* 🔄 Toggle */}
           <div className="flex justify-center gap-4">
             <button
-              onClick={() => setIsSignup(false)}
+              onClick={() => {
+                setIsSignup(false);
+                setError("");
+              }}
               className={`px-4 py-2 rounded-lg ${
                 !isSignup ? "bg-white text-black" : "text-white"
               }`}
@@ -152,7 +167,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               Login
             </button>
             <button
-              onClick={() => setIsSignup(true)}
+              onClick={() => {
+                setIsSignup(true);
+                setError("");
+              }}
               className={`px-4 py-2 rounded-lg ${
                 isSignup ? "bg-white text-black" : "text-white"
               }`}
@@ -181,7 +199,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white"
             />
 
-            {/* Invite Code */}
             {isSignup && (
               <input
                 type="text"

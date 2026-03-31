@@ -42,7 +42,13 @@ const AppRoutes = () => {
           user ? (
             <Navigate to="/" />
           ) : (
-            <LoginPage onLogin={(email: string) => console.log(email)} />
+            <LoginPage
+  onLogin={(email: string) => {
+    console.log("Logged in:", email);
+    // optional: force refresh UI instantly
+    window.location.href = "/";
+  }}
+/>
           )
         }
       />
