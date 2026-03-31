@@ -111,71 +111,90 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white/10 rounded-xl">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{
+        backgroundImage:
+          "url('https://cdn.builder.io/api/v1/image/assets%2F88805948443b4c8f889eb67f299fc007%2F147ce9f561de4ad18f3a12346131fc96?format=webp&width=1600')",
+      }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/70"></div>
 
-        <h1 className="text-3xl text-white text-center">
-          {isSignup ? "Sign Up" : "Login"}
-        </h1>
+      <div className="relative z-10 w-full max-w-md">
+        <div className="glass-card p-8 md:p-12 space-y-6 shadow-2xl">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Header */}
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-white mb-2">
+              Vired Pulse
+            </h1>
+            <p className="text-white/70">
+              {isSignup ? "Create your account" : "Login to your account"}
+            </p>
+          </div>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full p-3 rounded bg-white/20 text-white"
-          />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full p-3 rounded bg-white/20 text-white"
-          />
+            <input
+              type="email"
+              placeholder="Enter Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/60"
+            />
 
-          {error && (
-            <div className="text-red-400 text-sm text-center">
-              {error}
-            </div>
-          )}
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/60"
+            />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-white text-black py-3 rounded"
-          >
-            {loading
-              ? "Processing..."
-              : isSignup
-              ? "Create Account"
-              : "Login"}
-          </button>
+            {error && (
+              <div className="text-red-400 text-sm text-center bg-red-500/20 py-2 px-3 rounded-lg">
+                {error}
+              </div>
+            )}
 
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="vired-btn w-full py-3 rounded-xl text-lg"
+            >
+              {loading
+                ? "Processing..."
+                : isSignup
+                ? "Create Account"
+                : "Login"}
+            </button>
 
-        {/* 🔥 SIMPLE TOGGLE LINK */}
-        <p className="text-center text-white text-sm">
-          {isSignup ? "Already have an account?" : "New user?"}{" "}
-          <span
-            className="underline cursor-pointer"
-            onClick={() => {
-              setIsSignup(!isSignup);
-              setError("");
-            }}
-          >
-            {isSignup ? "Login here" : "Sign up here"}
-          </span>
-        </p>
+          </form>
 
-        <p className="text-center text-white/60 text-sm">
-          Demo: trainings@herovired.com / Hx00000
-        </p>
+          {/* Toggle */}
+          <p className="text-center text-white text-sm">
+            {isSignup ? "Already have an account?" : "New user?"}{" "}
+            <span
+              className="underline cursor-pointer"
+              onClick={() => {
+                setIsSignup(!isSignup);
+                setError("");
+              }}
+            >
+              {isSignup ? "Login here" : "Sign up here"}
+            </span>
+          </p>
 
+          {/* Demo */}
+          <p className="text-center text-white/60 text-sm">
+            Demo: trainings@herovired.com / Hx00000
+          </p>
+
+        </div>
       </div>
     </div>
   );

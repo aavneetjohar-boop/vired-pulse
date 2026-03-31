@@ -25,19 +25,18 @@
     "noFallthroughCasesInSwitch": false,
     "strictNullChecks": false,
 
-    /* Path mapping */
+    /* ✅ FIXED PATH MAPPING */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./client/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./src/*"]
     }
   },
+
+  /* ✅ FIXED INCLUDE PATHS */
   "include": [
-    "client/**/*",
-    "server/**/*",
-    "shared/**/*",
-    "vite.config.ts",
-    "vite.config.server.ts"
+    "src/**/*",
+    "vite.config.ts"
   ],
+
   "exclude": ["node_modules", "dist"]
 }
