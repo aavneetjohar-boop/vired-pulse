@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
@@ -66,10 +67,19 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         return;
       }
 
+      // 🔍 CHECK IF USER EXISTS (KEY FIX)
+      const methods = await fetchSignInMethodsForEmail(auth, normalizedEmail);
+
       // 🟣 2. SIGNUP FLOW
       if (isSignup) {
         if (!VALID_INVITE_CODES.includes(inviteCode.toUpperCase())) {
           setError("Invalid invite code");
+          return;
+        }
+
+        if (methods.length > 0) {
+          setError("Account already exists. Please login.");
+          setIsSignup(false);
           return;
         }
 
@@ -84,6 +94,12 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       }
 
       // 🔵 3. LOGIN FLOW
+      if (methods.length === 0) {
+        setError("Account not found. Please sign up.");
+        setIsSignup(true);
+        return;
+      }
+
       await signInWithEmailAndPassword(
         auth,
         normalizedEmail,
@@ -96,23 +112,8 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       console.error("Auth Error:", err);
 
       switch (err.code) {
-        case "auth/invalid-credential":
-          setError("Account not found. Please sign up.");
-          setIsSignup(true);
-          break;
-
-        case "auth/user-not-found":
-          setError("User not found. Please sign up.");
-          setIsSignup(true);
-          break;
-
         case "auth/wrong-password":
           setError("Incorrect password");
-          break;
-
-        case "auth/email-already-in-use":
-          setError("Account already exists. Please login.");
-          setIsSignup(false);
           break;
 
         case "auth/weak-password":
