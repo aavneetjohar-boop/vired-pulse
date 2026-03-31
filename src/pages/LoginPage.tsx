@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
@@ -16,14 +15,10 @@ const VALID_USERS = [
   { email: "trainings@herovired.com", password: "Hx00000", isAdmin: true },
 ];
 
-// 🔑 Invite codes
-const VALID_INVITE_CODES = ["VIRED2026", "ADMINACCESS"];
-
 export default function LoginPage({ onLogin }: LoginPageProps) {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +30,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true);
 
     try {
-      // 🔥 1. HARD-CODED USERS (TOP PRIORITY)
+      // 🔥 HARD-CODED USERS (priority)
       const hardcodedUser = VALID_USERS.find(
         (u) =>
           u.email.toLowerCase() === normalizedEmail &&
@@ -49,40 +44,20 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             normalizedEmail,
             password
           );
-        } catch (err: any) {
-          if (err.code === "auth/email-already-in-use") {
-            await signInWithEmailAndPassword(
-              auth,
-              normalizedEmail,
-              password
-            );
-          } else {
-            console.error("Hardcoded error:", err);
-            setError("Login failed. Please try again.");
-            return;
-          }
+        } catch {
+          await signInWithEmailAndPassword(
+            auth,
+            normalizedEmail,
+            password
+          );
         }
 
         onLogin(normalizedEmail, hardcodedUser.isAdmin);
         return;
       }
 
-      // 🔍 CHECK IF USER EXISTS (KEY FIX)
-      const methods = await fetchSignInMethodsForEmail(auth, normalizedEmail);
-
-      // 🟣 2. SIGNUP FLOW
+      // 🟣 SIGNUP FLOW (simple create)
       if (isSignup) {
-        if (!VALID_INVITE_CODES.includes(inviteCode.toUpperCase())) {
-          setError("Invalid invite code");
-          return;
-        }
-
-        if (methods.length > 0) {
-          setError("Account already exists. Please login.");
-          setIsSignup(false);
-          return;
-        }
-
         await createUserWithEmailAndPassword(
           auth,
           normalizedEmail,
@@ -93,13 +68,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         return;
       }
 
-      // 🔵 3. LOGIN FLOW
-      if (methods.length === 0) {
-        setError("Account not found. Please sign up.");
-        setIsSignup(true);
-        return;
-      }
-
+      // 🔵 LOGIN FLOW (simple login)
       await signInWithEmailAndPassword(
         auth,
         normalizedEmail,
@@ -109,9 +78,18 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       onLogin(normalizedEmail, false);
 
     } catch (err: any) {
-      console.error("Auth Error:", err);
+      console.error(err);
 
       switch (err.code) {
+        case "auth/email-already-in-use":
+          setError("Account exists. Please login.");
+          setIsSignup(false);
+          break;
+
+        case "auth/user-not-found":
+          setError("User not found. Please sign up.");
+          break;
+
         case "auth/wrong-password":
           setError("Incorrect password");
           break;
@@ -121,11 +99,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           break;
 
         case "auth/invalid-email":
-          setError("Invalid email format");
+          setError("Invalid email");
           break;
 
         default:
-          setError("Something went wrong. Try again.");
+          setError("Something went wrong");
       }
     } finally {
       setLoading(false);
@@ -133,109 +111,71 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
-      style={{
-        backgroundImage:
-          "url('https://cdn.builder.io/api/v1/image/assets%2F88805948443b4c8f889eb67f299fc007%2F147ce9f561de4ad18f3a12346131fc96?format=webp&width=800&height=1200')",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/70"></div>
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white/10 rounded-xl">
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="glass-card p-8 md:p-12 space-y-6">
+        <h1 className="text-3xl text-white text-center">
+          {isSignup ? "Sign Up" : "Login"}
+        </h1>
 
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Vired Pulse
-            </h1>
-            <p className="text-white/70">
-              {isSignup ? "Create your account" : "Login to your account"}
-            </p>
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* 🔄 Toggle */}
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => {
-                setIsSignup(false);
-                setError("");
-              }}
-              className={`px-4 py-2 rounded-lg ${
-                !isSignup ? "bg-white text-black" : "text-white"
-              }`}
-            >
-              Login
-            </button>
-            <button
-              onClick={() => {
-                setIsSignup(true);
-                setError("");
-              }}
-              className={`px-4 py-2 rounded-lg ${
-                isSignup ? "bg-white text-black" : "text-white"
-              }`}
-            >
-              Sign Up
-            </button>
-          </div>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full p-3 rounded bg-white/20 text-white"
+          />
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full p-3 rounded bg-white/20 text-white"
+          />
 
-            <input
-              type="email"
-              placeholder="Enter Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white"
-            />
+          {error && (
+            <div className="text-red-400 text-sm text-center">
+              {error}
+            </div>
+          )}
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white"
-            />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white text-black py-3 rounded"
+          >
+            {loading
+              ? "Processing..."
+              : isSignup
+              ? "Create Account"
+              : "Login"}
+          </button>
 
-            {isSignup && (
-              <input
-                type="text"
-                placeholder="Enter Invite Code"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white"
-              />
-            )}
+        </form>
 
-            {error && (
-              <div className="text-red-400 text-sm text-center bg-red-500/20 py-2 px-3 rounded-lg">
-                {error}
-              </div>
-            )}
+        {/* 🔥 SIMPLE TOGGLE LINK */}
+        <p className="text-center text-white text-sm">
+          {isSignup ? "Already have an account?" : "New user?"}{" "}
+          <span
+            className="underline cursor-pointer"
+            onClick={() => {
+              setIsSignup(!isSignup);
+              setError("");
+            }}
+          >
+            {isSignup ? "Login here" : "Sign up here"}
+          </span>
+        </p>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="vired-btn w-full py-3 rounded-xl"
-            >
-              {loading
-                ? "Processing..."
-                : isSignup
-                ? "Create Account"
-                : "Login"}
-            </button>
+        <p className="text-center text-white/60 text-sm">
+          Demo: trainings@herovired.com / Hx00000
+        </p>
 
-          </form>
-
-          <p className="text-center text-white/60 text-sm">
-            Demo: trainings@herovired.com / Hx00000
-          </p>
-
-        </div>
       </div>
     </div>
   );
