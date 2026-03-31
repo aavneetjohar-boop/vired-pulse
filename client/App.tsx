@@ -1,7 +1,6 @@
 import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -36,21 +35,14 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={user ? <Index /> : <Navigate to="/login" />}
-      />
+      <Route path="/" element={user ? <Index /> : <Navigate to="/login" />} />
       <Route
         path="/login"
         element={
           user ? (
             <Navigate to="/" />
           ) : (
-            <LoginPage
-              onLogin={(email: string) => {
-                console.log("Logged in:", email);
-              }}
-            />
+            <LoginPage onLogin={(email: string) => console.log(email)} />
           )
         }
       />
@@ -71,4 +63,4 @@ const App = () => (
   </QueryClientProvider>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;
